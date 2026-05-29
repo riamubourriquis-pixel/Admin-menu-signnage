@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin – Menu du jour</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F5F1EA; --card: #FFFFFF; --border: #D8CEBA;
+    --text: #2C2416; --muted: #8C7B5E; --accent: #7B4F2E; --accent2: #C8A96E;
+    --success: #3A6B35; --sans: 'Source Sans 3', Arial, sans-serif;
+  }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem; }
+  h1 { font-size: 1.8rem; font-weight: 600; color: var(--accent); margin-bottom: 0.3rem; }
+  .subtitle { font-size: 1rem; color: var(--muted); margin-bottom: 2rem; }
+  #date-selector { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; }
+  #date-selector label { font-size: 1rem; font-weight: 600; color: var(--text); }
+  #date-selector input[type="date"] { font-size: 1rem; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; font-family: var(--sans); color: var(--text); background: var(--bg); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .repas-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .repas-header { padding: 0.8rem 1.2rem; background: var(--accent); display: flex; align-items: center; gap: 0.5rem; }
+  .repas-header span { font-size: 1.1rem; font-weight: 600; color: #FFF8EE; }
+  .repas-icon { font-size: 1.3rem; }
+  .repas-body { padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: 0.9rem; }
+  .champ { display: flex; flex-direction: column; gap: 0.3rem; }
+  .champ label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent2); }
+  .champ input { font-size: 1rem; font-family: var(--sans); border: 1px solid var(--border); border-radius: 8px; padding: 0.55rem 0.8rem; background: var(--bg); color: var(--text); width: 100%; }
+  .champ input:focus { outline: none; border-color: var(--accent2); }
+  .champ input::placeholder { color: var(--muted); }
+  .btn-save { display: block; width: 100%; padding: 1rem; font-size: 1.2rem; font-weight: 600; font-family: var(--sans); background: var(--accent); color: #FFF8EE; border: none; border-radius: 12px; cursor: pointer; transition: background 0.2s; }
+  .btn-save:hover { background: #5C3820; }
+  .btn-save:disabled { background: var(--muted); cursor: not-allowed; }
+  #status { margin-top: 1rem; text-align: center; font-size: 1rem; min-height: 1.5rem; }
+  #status.ok { color: var(--success); font-weight: 600; }
+  #status.err { color: #A32D2D; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>🍽️ Saisie du menu</h1>
+<p class="subtitle">Les menus sont enregistrés en ligne et affichés automatiquement sur tous les écrans.</p>
+
+<div id="date-selector">
+  <label for="date-input">Date :</label>
+  <input type="date" id="date-input">
+</div>
+
+<div class="grid">
+  <div class="repas-card">
+    <div class="repas-header"><span class="repas-icon">☕</span><span>Petit-déjeuner</span></div>
+    <div class="repas-body">
+      <div class="champ"><label>Boisson</label><input id="matin-boisson" placeholder="ex : Café, thé, jus d'orange…"></div>
+      <div class="champ"><label>Pain / Viennoiserie</label><input id="matin-pain" placeholder="ex : Pain grillé, croissant…"></div>
+      <div class="champ"><label>Accompagnement</label><input id="matin-accompagnement" placeholder="ex : Beurre, confiture, yaourt…"></div>
+    </div>
+  </div>
+  <div class="repas-card">
+    <div class="repas-header"><span class="repas-icon">🍽️</span><span>Déjeuner</span></div>
+    <div class="repas-body">
+      <div class="champ"><label>Entrée</label><input id="midi-entree" placeholder="ex : Salade de tomates…"></div>
+      <div class="champ"><label>Plat principal</label><input id="midi-plat" placeholder="ex : Poulet rôti…"></div>
+      <div class="champ"><label>Garniture</label><input id="midi-garniture" placeholder="ex : Haricots verts…"></div>
+      <div class="champ"><label>Fromage</label><input id="midi-fromage" placeholder="ex : Camembert…"></div>
+      <div class="champ"><label>Dessert</label><input id="midi-dessert" placeholder="ex : Tarte aux pommes…"></div>
+    </div>
+  </div>
+  <div class="repas-card">
+    <div class="repas-header"><span class="repas-icon">🌙</span><span>Dîner</span></div>
+    <div class="repas-body">
+      <div class="champ"><label>Entrée</label><input id="soir-entree" placeholder="ex : Soupe de légumes…"></div>
+      <div class="champ"><label>Plat principal</label><input id="soir-plat" placeholder="ex : Omelette aux herbes…"></div>
+      <div class="champ"><label>Garniture</label><input id="soir-garniture" placeholder="ex : Purée maison…"></div>
+      <div class="champ"><label>Dessert</label><input id="soir-dessert" placeholder="ex : Compote de poires…"></div>
+    </div>
+  </div>
+</div>
+
+<button class="btn-save" id="btn-save" onclick="sauvegarder()">✔ Enregistrer le menu</button>
+<div id="status"></div>
+
+<script>
+const BIN_ID  = '6a19515f21f9ee59d298c3fc';
+const API_KEY = '$2a$10$UZA.wKkWWw.sEw4bBhePZuo417WrS50iTzIHsCuo3izFmI1/y1cgC';
+const API_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+
+const CHAMPS = {
+  matin: ['boisson','pain','accompagnement'],
+  midi:  ['entree','plat','garniture','fromage','dessert'],
+  soir:  ['entree','plat','garniture','dessert']
+};
+
+function getTodayStr() { return new Date().toISOString().slice(0,10); }
+function getDateKey()  { return document.getElementById('date-input').value || getTodayStr(); }
+
+async function fetchAll() {
+  try {
+    const res = await fetch(API_URL+'/latest', { headers: { 'X-Master-Key': API_KEY } });
+    const data = await res.json();
+    return data.record || {};
+  } catch(e) { return {}; }
+}
+
+async function charger() {
+  const all = await fetchAll();
+  const key = getDateKey();
+  const menu = all[key] || {};
+  for (const repas of Object.keys(CHAMPS)) {
+    for (const champ of CHAMPS[repas]) {
+      const el = document.getElementById(repas+'-'+champ);
+      if (el) el.value = (menu[repas] && menu[repas][champ]) || '';
+    }
+  }
+}
+
+async function sauvegarder() {
+  const btn = document.getElementById('btn-save');
+  const status = document.getElementById('status');
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement…';
+  status.textContent = '';
+  status.className = '';
+
+  const all = await fetchAll();
+  const key = getDateKey();
+  const menu = {};
+  for (const repas of Object.keys(CHAMPS)) {
+    menu[repas] = {};
+    for (const champ of CHAMPS[repas]) {
+      const el = document.getElementById(repas+'-'+champ);
+      menu[repas][champ] = el ? el.value.trim() : '';
+    }
+  }
+  all[key] = menu;
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+      body: JSON.stringify(all)
+    });
+    if (res.ok) {
+      status.textContent = '✔ Menu enregistré ! Les écrans se mettront à jour dans la minute.';
+      status.className = 'ok';
+    } else {
+      throw new Error('Erreur '+res.status);
+    }
+  } catch(e) {
+    status.textContent = '✘ Erreur d\'enregistrement. Vérifiez votre connexion.';
+    status.className = 'err';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✔ Enregistrer le menu';
+}
+
+document.getElementById('date-input').value = getTodayStr();
+document.getElementById('date-input').addEventListener('change', charger);
+charger();
+</script>
+</body>
+</html>
