@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin – Menu du jour</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F5F1EA; --card: #FFFFFF; --border: #D8CEBA;
+    --text: #2C2416; --muted: #8C7B5E; --accent: #7B4F2E; --accent2: #C8A96E;
+    --success: #3A6B35; --error: #A32D2D; --sans: 'Source Sans 3', Arial, sans-serif;
+  }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* LOGIN */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #login-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+  }
+  #login-box h1 { font-size: 1.6rem; color: var(--accent); margin-bottom: 0.3rem; }
+  #login-box p { font-size: 0.95rem; color: var(--muted); margin-bottom: 2rem; }
+  #login-box input {
+    width: 100%; padding: 0.8rem 1rem; font-size: 1.1rem;
+    border: 1px solid var(--border); border-radius: 10px;
+    font-family: var(--sans); background: var(--bg); color: var(--text);
+    text-align: center; letter-spacing: 0.15em; margin-bottom: 1rem;
+  }
+  #login-box input:focus { outline: none; border-color: var(--accent2); }
+  #btn-login {
+    width: 100%; padding: 0.9rem; font-size: 1.1rem; font-weight: 600;
+    font-family: var(--sans); background: var(--accent); color: #FFF8EE;
+    border: none; border-radius: 10px; cursor: pointer; transition: background 0.2s;
+  }
+  #btn-login:hover { background: #5C3820; }
+  #login-error { color: var(--error); font-size: 0.95rem; margin-top: 0.8rem; min-height: 1.2rem; }
+
+  /* ADMIN */
+  #admin-screen { display: none; padding: 2rem; }
+  #admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; }
+  h1 { font-size: 1.8rem; font-weight: 600; color: var(--accent); }
+  .subtitle { font-size: 1rem; color: var(--muted); margin-bottom: 2rem; }
+  #btn-logout {
+    font-size: 0.9rem; font-family: var(--sans); background: none;
+    border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem 1rem;
+    color: var(--muted); cursor: pointer;
+  }
+  #btn-logout:hover { border-color: var(--accent); color: var(--accent); }
+  #date-selector { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; }
+  #date-selector label { font-size: 1rem; font-weight: 600; }
+  #date-selector input[type="date"] { font-size: 1rem; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; font-family: var(--sans); color: var(--text); background: var(--bg); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .repas-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .repas-header { padding: 0.8rem 1.2rem; background: var(--accent); display: flex; align-items: center; gap: 0.5rem; }
+  .repas-header span { font-size: 1.1rem; font-weight: 600; color: #FFF8EE; }
+  .repas-icon { font-size: 1.3rem; }
+  .repas-body { padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: 0.9rem; }
+  .champ { display: flex; flex-direction: column; gap: 0.3rem; }
+  .champ label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent2); }
+  .champ input { font-size: 1rem; font-family: var(--sans); border: 1px solid var(--border); border-radius: 8px; padding: 0.55rem 0.8rem; background: var(--bg); color: var(--text); width: 100%; }
+  .champ input:focus { outline: none; border-color: var(--accent2); }
+  .champ input::placeholder { color: var(--muted); }
+  .btn-save { display: block; width: 100%; padding: 1rem; font-size: 1.2rem; font-weight: 600; font-family: var(--sans); background: var(--accent); color: #FFF8EE; border: none; border-radius: 12px; cursor: pointer; transition: background 0.2s; }
+  .btn-save:hover { background: #5C3820; }
+  .btn-save:disabled { background: var(--muted); cursor: not-allowed; }
+  #status { margin-top: 1rem; text-align: center; font-size: 1rem; min-height: 1.5rem; }
+  #status.ok { color: var(--success); font-weight: 600; }
+  #status.err { color: var(--error); font-weight: 600; }
+
+  /* Changer mdp */
+  #change-pwd-section {
+    margin-top: 2rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+  }
+  #change-pwd-section h2 { font-size: 1rem; color: var(--muted); margin-bottom: 1rem; font-weight: 600; }
+  .pwd-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; }
+  .pwd-row .champ { flex: 1; min-width: 180px; }
+  #btn-change-pwd {
+    padding: 0.6rem 1.4rem; font-size: 0.95rem; font-weight: 600;
+    font-family: var(--sans); background: var(--accent); color: #FFF8EE;
+    border: none; border-radius: 10px; cursor: pointer; white-space: nowrap;
+  }
+  #btn-change-pwd:hover { background: #5C3820; }
+  #pwd-status { font-size: 0.9rem; margin-top: 0.6rem; min-height: 1.2rem; }
+  #pwd-status.ok { color: var(--success); font-weight: 600; }
+  #pwd-status.err { color: var(--error); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ÉCRAN DE CONNEXION -->
+<div id="login-screen">
+  <div id="login-box">
+    <h1>🔒 Accès admin</h1>
+    <p>Menu du jour — EHPAD</p>
+    <input type="password" id="pwd-input" placeholder="Mot de passe" onkeydown="if(event.key==='Enter') login()">
+    <button id="btn-login" onclick="login()">Se connecter</button>
+    <div id="login-error"></div>
+  </div>
+</div>
+
+<!-- ÉCRAN ADMIN -->
+<div id="admin-screen">
+  <div id="admin-header">
+    <h1>🍽️ Saisie du menu</h1>
+    <button id="btn-logout" onclick="logout()">Se déconnecter</button>
+  </div>
+  <p class="subtitle">Les menus sont enregistrés en ligne et affichés automatiquement sur tous les écrans.</p>
+
+  <div id="date-selector">
+    <label for="date-input">Date :</label>
+    <input type="date" id="date-input">
+  </div>
+
+  <div class="grid">
+    <div class="repas-card">
+      <div class="repas-header"><span class="repas-icon">☕</span><span>Petit-déjeuner</span></div>
+      <div class="repas-body">
+        <div class="champ"><label>Boisson</label><input id="matin-boisson" placeholder="ex : Café, thé, jus d'orange…"></div>
+        <div class="champ"><label>Pain / Viennoiserie</label><input id="matin-pain" placeholder="ex : Pain grillé, croissant…"></div>
+        <div class="champ"><label>Accompagnement</label><input id="matin-accompagnement" placeholder="ex : Beurre, confiture, yaourt…"></div>
+      </div>
+    </div>
+    <div class="repas-card">
+      <div class="repas-header"><span class="repas-icon">🍽️</span><span>Déjeuner</span></div>
+      <div class="repas-body">
+        <div class="champ"><label>Entrée</label><input id="midi-entree" placeholder="ex : Salade de tomates…"></div>
+        <div class="champ"><label>Plat principal</label><input id="midi-plat" placeholder="ex : Poulet rôti…"></div>
+        <div class="champ"><label>Garniture</label><input id="midi-garniture" placeholder="ex : Haricots verts…"></div>
+        <div class="champ"><label>Fromage</label><input id="midi-fromage" placeholder="ex : Camembert…"></div>
+        <div class="champ"><label>Dessert</label><input id="midi-dessert" placeholder="ex : Tarte aux pommes…"></div>
+      </div>
+    </div>
+    <div class="repas-card">
+      <div class="repas-header"><span class="repas-icon">🌙</span><span>Dîner</span></div>
+      <div class="repas-body">
+        <div class="champ"><label>Entrée</label><input id="soir-entree" placeholder="ex : Soupe de légumes…"></div>
+        <div class="champ"><label>Plat principal</label><input id="soir-plat" placeholder="ex : Omelette aux herbes…"></div>
+        <div class="champ"><label>Garniture</label><input id="soir-garniture" placeholder="ex : Purée maison…"></div>
+        <div class="champ"><label>Dessert</label><input id="soir-dessert" placeholder="ex : Compote de poires…"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-save" id="btn-save" onclick="sauvegarder()">✔ Enregistrer le menu</button>
+  <div id="status"></div>
+
+  <div id="change-pwd-section">
+    <h2>🔑 Changer le mot de passe</h2>
+    <div class="pwd-row">
+      <div class="champ"><label>Mot de passe actuel</label><input type="password" id="pwd-current" placeholder="Mot de passe actuel"></div>
+      <div class="champ"><label>Nouveau mot de passe</label><input type="password" id="pwd-new" placeholder="Nouveau mot de passe"></div>
+      <div class="champ"><label>Confirmer</label><input type="password" id="pwd-confirm" placeholder="Confirmer"></div>
+      <button id="btn-change-pwd" onclick="changerMotDePasse()">Modifier</button>
+    </div>
+    <div id="pwd-status"></div>
+  </div>
+</div>
+
+<script>
+const BIN_ID  = '6a19894621f9ee59d29998b0';
+const API_KEY = '$2a$10$fNp7mwJaBvhRuzGdZe0kbe1J9vspfEQdZYPAd.ygX3BOzMoWYOCb2';
+const API_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+const DEFAULT_PWD = 'admin';
+const SESSION_KEY = 'ehpad_auth';
+const PWD_KEY = 'ehpad_pwd';
+
+const CHAMPS = {
+  matin: ['boisson','pain','accompagnement'],
+  midi:  ['entree','plat','garniture','fromage','dessert'],
+  soir:  ['entree','plat','garniture','dessert']
+};
+
+// Mot de passe stocké localement (modifiable)
+function getPassword() {
+  return localStorage.getItem(PWD_KEY) || DEFAULT_PWD;
+}
+
+function isLoggedIn() {
+  return sessionStorage.getItem(SESSION_KEY) === 'ok';
+}
+
+function login() {
+  const val = document.getElementById('pwd-input').value;
+  if (val === getPassword()) {
+    sessionStorage.setItem(SESSION_KEY, 'ok');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    init();
+  } else {
+    document.getElementById('login-error').textContent = '✘ Mot de passe incorrect';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+}
+
+function changerMotDePasse() {
+  const current = document.getElementById('pwd-current').value;
+  const newPwd  = document.getElementById('pwd-new').value.trim();
+  const confirm = document.getElementById('pwd-confirm').value.trim();
+  const status  = document.getElementById('pwd-status');
+
+  if (current !== getPassword()) {
+    status.textContent = '✘ Mot de passe actuel incorrect'; status.className = 'err'; return;
+  }
+  if (newPwd.length < 4) {
+    status.textContent = '✘ Le mot de passe doit faire au moins 4 caractères'; status.className = 'err'; return;
+  }
+  if (newPwd !== confirm) {
+    status.textContent = '✘ Les mots de passe ne correspondent pas'; status.className = 'err'; return;
+  }
+  localStorage.setItem(PWD_KEY, newPwd);
+  document.getElementById('pwd-current').value = '';
+  document.getElementById('pwd-new').value = '';
+  document.getElementById('pwd-confirm').value = '';
+  status.textContent = '✔ Mot de passe modifié avec succès'; status.className = 'ok';
+  setTimeout(() => { status.textContent = ''; }, 3000);
+}
+
+function getTodayStr() { return new Date().toISOString().slice(0,10); }
+function getDateKey()  { return document.getElementById('date-input').value || getTodayStr(); }
+
+async function fetchAll() {
+  try {
+    const res = await fetch(API_URL+'/latest', { headers: { 'X-Master-Key': API_KEY } });
+    const data = await res.json();
+    return data.record || {};
+  } catch(e) { return {}; }
+}
+
+async function charger() {
+  const all = await fetchAll();
+  const key = getDateKey();
+  const menu = all[key] || {};
+  for (const repas of Object.keys(CHAMPS)) {
+    for (const champ of CHAMPS[repas]) {
+      const el = document.getElementById(repas+'-'+champ);
+      if (el) el.value = (menu[repas] && menu[repas][champ]) || '';
+    }
+  }
+}
+
+async function sauvegarder() {
+  const btn = document.getElementById('btn-save');
+  const status = document.getElementById('status');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+  status.textContent = ''; status.className = '';
+
+  const all = await fetchAll();
+  const key = getDateKey();
+  const menu = {};
+  for (const repas of Object.keys(CHAMPS)) {
+    menu[repas] = {};
+    for (const champ of CHAMPS[repas]) {
+      const el = document.getElementById(repas+'-'+champ);
+      menu[repas][champ] = el ? el.value.trim() : '';
+    }
+  }
+  all[key] = menu;
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+      body: JSON.stringify(all)
+    });
+    if (res.ok) {
+      status.textContent = '✔ Menu enregistré ! Les écrans se mettront à jour dans la minute.';
+      status.className = 'ok';
+    } else { throw new Error('Erreur '+res.status); }
+  } catch(e) {
+    status.textContent = '✘ Erreur d\'enregistrement. Vérifiez votre connexion.';
+    status.className = 'err';
+  }
+  btn.disabled = false; btn.textContent = '✔ Enregistrer le menu';
+}
+
+function init() {
+  document.getElementById('date-input').value = getTodayStr();
+  document.getElementById('date-input').addEventListener('change', charger);
+  charger();
+}
+
+// Vérif session au chargement
+if (isLoggedIn()) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-screen').style.display = 'block';
+  init();
+}
+</script>
+</body>
+</html>
